@@ -1,0 +1,36 @@
+{
+  "name": "lsphere",
+  "version": "0.1.0",
+  "module": "index.ts",
+  "type": "commonjs",
+  "bin": {
+    "lsphere": "./dist/lsphere"
+  },
+  "scripts": {
+    "build": "ncc build src/cli.ts -o dist -m",
+    "run": "node dist/lsphere",
+    "clean": "rm -rf dist output",
+    "show": "xdg-open output/composite.svg || open output/composite.svg || echo 'Open output/composite.svg manually'",
+    "help": "echo 'Available scripts: build, run, clean, show'"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "@types/node": "^24.5.2",
+    "@typescript-eslint/eslint-plugin": "^8.44.0",
+    "@typescript-eslint/parser": "^8.44.0",
+    "@vercel/ncc": "^0.38.4",
+    "eslint": "^9.36.0",
+    "eslint-config-prettier": "^10.1.8",
+    "prettier": "^3.6.2"
+  },
+  "peerDependencies": {
+    "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "commander": "^14.0.1",
+    "d3-color": "^3.1.0",
+    "d3-hierarchy": "^3.1.2",
+    "d3-interpolate": "^3.0.1",
+    "d3-scale": "^4.0.2"
+  }
+}
