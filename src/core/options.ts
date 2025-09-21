@@ -35,7 +35,7 @@ export interface Options {
   outDir: string;
   outputs: OutputMode;
 
-  depth: number;       // -1 = unlimited
+  depth: number; // -1 = unlimited
   dirsOnly: boolean;
   noFolders: boolean;
 
@@ -82,8 +82,8 @@ export interface RawCLI {
   noIgnoreFile?: boolean;
 
   // html template
-  htmlTemplate?: string;          // "default" | path | url
-  templateCacheDir?: string;      // default ".lsphere-cache"
+  htmlTemplate?: string; // "default" | path | url
+  templateCacheDir?: string; // default ".lsphere-cache"
   noNetwork?: boolean;
   templateTimeout?: string | number; // ms
   templateHash?: string;
@@ -129,15 +129,19 @@ export function resolveOptions(raw: RawCLI): Options {
   if (outputs.html) outputs.json = true;
 
   const depthNum = (() => {
-    if (raw.depth === undefined || raw.depth === null || raw.depth === '') return DEFAULTS.depth;
+    if (raw.depth === undefined || raw.depth === null || raw.depth === '')
+      return DEFAULTS.depth;
     const n = typeof raw.depth === 'string' ? Number(raw.depth) : raw.depth;
     if (!Number.isFinite(n)) return DEFAULTS.depth;
     return Math.trunc(n);
   })();
 
   const extColors = parseExtColors(raw.extColors);
-  const ignorePatterns = raw.ignore ? raw.ignore.trim().split(/\s+/).filter(Boolean) : DEFAULTS.ignorePatterns;
-  const ignoreFile = raw.noIgnoreFile === true ? null : (raw.ignoreFile ?? DEFAULTS.ignoreFile);
+  const ignorePatterns = raw.ignore
+    ? raw.ignore.trim().split(/\s+/).filter(Boolean)
+    : DEFAULTS.ignorePatterns;
+  const ignoreFile =
+    raw.noIgnoreFile === true ? null : (raw.ignoreFile ?? DEFAULTS.ignoreFile);
   const verbose = raw.quiet ? false : (raw.verbose ?? DEFAULTS.verbose);
   const contrast = normalizeContrast(raw.contrast);
   const palette = raw.palette ?? DEFAULTS.palette;
@@ -177,7 +181,10 @@ export function resolveOptions(raw: RawCLI): Options {
 function parseExtColors(mapStr?: string): Record<string, string> {
   if (!mapStr || !mapStr.trim()) return DEFAULTS.extColors;
   const out: Record<string, string> = {};
-  for (const entry of mapStr.split(',').map(s => s.trim()).filter(Boolean)) {
+  for (const entry of mapStr
+    .split(',')
+    .map((s) => s.trim())
+    .filter(Boolean)) {
     const idx = entry.indexOf('=');
     if (idx <= 0) continue;
     let ext = entry.slice(0, idx).trim();
