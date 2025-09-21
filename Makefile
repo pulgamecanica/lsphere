@@ -30,7 +30,7 @@ run: build
 	$(PACKAGE_MANAGER) run run
 
 .PHONY: show
-show:
+show: run
 	$(PACKAGE_MANAGER) run show
 
 .PHONY: clean distclean
