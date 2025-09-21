@@ -4,6 +4,9 @@ import { join, resolve as resolvePath } from 'path';
 import { Command } from 'commander';
 import { scaleLinear } from 'd3-scale';
 import { createReporter } from './core/reporter';
+import { scanDirectoryStub } from './core/scan';
+import { type Snapshot } from './core/model';
+
 import kleur from 'kleur';
 
 import { resolveOptions, type RawCLI, type Options } from './core/options';
@@ -77,6 +80,9 @@ program
       reporter.exit(2);
     }
 
+    // We need the tree regardless
+    const tree = scanDirectoryStub(options);
+
     // --- Demo circle SVG (if requested) ---
     const outDir = options.outDir;
     mkdirSync(outDir, { recursive: true });
@@ -92,13 +98,24 @@ program
     let jsonPath: string | null = null;
     if (options.outputs.json) {
       jsonPath = join(outDir, 'circle.json');
-      const payload = {
-        demo: true,
-        note: 'lsphere JSON stub',
-        palette: options.palette,
-        bg: options.bgColor,
+      const snapshot: Snapshot = {
+        meta: {
+          tool: 'lsphere',
+          version: '0.0.0', // TODO: optionally read from package.json later
+          generatedAt: new Date().toISOString(),
+          root: resolvePath(options.targetPath),
+          options: {
+            depth: options.depth,
+            dirsOnly: options.dirsOnly,
+            noFolders: options.noFolders,
+            bgColor: options.bgColor,
+            palette: options.palette,
+            contrast: options.contrast,
+          },
+        },
+        tree,
       };
-      writeFileSync(jsonPath, JSON.stringify(payload, null, 2), 'utf8');
+      writeFileSync(jsonPath, JSON.stringify(snapshot, null, 2), 'utf8');
       reporter.success(`wrote JSON → ${kleur.bold(jsonPath)}`);
     }
 

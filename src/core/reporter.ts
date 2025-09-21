@@ -1,4 +1,3 @@
-// src/core/reporter.ts
 import * as process from 'node:process';
 import * as kleur from 'kleur';
 
