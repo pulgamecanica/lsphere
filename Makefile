@@ -20,7 +20,7 @@ help:
 deps:
 	$(PACKAGE_MANAGER) install
 
-build: dist/lsphere
+build: deps dist/lsphere
 
 dist/lsphere: $(shell find src -type f) package.json tsconfig.json
 	$(PACKAGE_MANAGER) run build

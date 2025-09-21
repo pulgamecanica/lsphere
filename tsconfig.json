@@ -1,12 +1,15 @@
 {
   "compilerOptions": {
     "target": "ES2020",
-    "module": "CommonJS",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "moduleDetection": "force",
     "rootDir": "src",
     "outDir": "build",
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true
+
   },
   "include": ["src/**/*.ts"]
 }
