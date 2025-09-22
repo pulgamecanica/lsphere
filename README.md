@@ -1,7 +1,6 @@
 # lsphere
 
 > Circle-packing visualizations of file trees — as a CLI.
-> Author: **pulgamecanica**
 
 ![badge-node](https://img.shields.io/badge/node-%E2%89%A5%2018.x-3c873a)
 ![badge-ts](https://img.shields.io/badge/TypeScript-5.x-297acc)
@@ -30,12 +29,6 @@ Design details:
 * A **legend** lists the extensions and their colors (bottom→top) in a right-side panel.
 * Sizes are log-scaled so huge files don’t swallow the layout.
 * Honors `.lsignore` (plus inline ignore patterns).
-
-> 📷 **Screenshots** (placeholders; replace with your own):
->
-> * Main SVG: `![lsphere main](docs/images/screenshot-main.png)`
-> * Palette legend: `![legend](docs/images/screenshot-legend.png)`
-> * Arched labels: `![labels](docs/images/screenshot-arched.png)`
 
 ---
 
