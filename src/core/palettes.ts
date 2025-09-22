@@ -34,6 +34,6 @@ export function pickD3Scheme(name?: string): readonly string[] {
     case 'set2':
       return schemeSet2;
     default:
-      return schemeTableau10; // sensible default
+      return schemeTableau10;
   }
 }

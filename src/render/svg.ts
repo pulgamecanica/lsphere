@@ -1,4 +1,3 @@
-// src/render/svg.ts
 import { hierarchy, pack } from 'd3-hierarchy';
 import { scaleLog, scaleOrdinal } from 'd3-scale';
 import type { Snapshot, DirNode, FileNode } from '../core/model';
