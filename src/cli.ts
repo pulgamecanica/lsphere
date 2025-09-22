@@ -4,7 +4,7 @@ import { join, resolve as resolvePath } from 'path';
 import { Command } from 'commander';
 import { scaleLinear } from 'd3-scale';
 import { createReporter } from './core/reporter';
-import { scanDirectoryStub } from './core/scan';
+import { scanDirectory } from './core/scan';
 import { type Snapshot } from './core/model';
 
 import kleur from 'kleur';
@@ -81,7 +81,14 @@ program
     }
 
     // We need the tree regardless
-    const tree = scanDirectoryStub(options);
+    let tree;
+    try {
+      tree = await scanDirectory(options, reporter);
+    } catch (err: unknown) {
+      reporter.error(String((err as Error)?.message ?? err));
+      reporter.exit(3); // scan error
+    }
+    if (!tree) return;
 
     // --- Demo circle SVG (if requested) ---
     const outDir = options.outDir;
