@@ -30,7 +30,7 @@ export interface SnapshotMeta {
   options: {
     depth: number;
     dirsOnly: boolean;
-    noFolders: boolean;
+    noDirs: boolean;
     bgColor: string;
     palette: string;
     contrast: ContrastMode;

@@ -2,7 +2,6 @@
 import { mkdirSync, writeFileSync } from 'fs';
 import { join, resolve as resolvePath } from 'path';
 import { Command } from 'commander';
-import { scaleLinear } from 'd3-scale';
 import { createReporter } from './core/reporter';
 import { scanDirectory } from './core/scan';
 import { type Snapshot } from './core/model';
@@ -12,6 +11,7 @@ import kleur from 'kleur';
 import { resolveOptions, type RawCLI, type Options } from './core/options';
 
 import { describeTemplate, applyTemplate, loadTemplate } from './core/template';
+import { renderSvgFromSnapshot } from './render/svg';
 
 const program = new Command();
 
@@ -29,9 +29,12 @@ program
   // behavior
   .option('-d, --depth <n>', 'max recursion depth (negative = unlimited)')
   .option('--dirs-only', 'render only directories')
-  .option('--no-folders', 'hide folder names')
+  .option('--no-dirs', 'hide directory names')
   .option('--bg <color>', 'background color')
-  .option('--palette <name>', 'palette name')
+  .option(
+    '--palette <name>',
+    'palette name: category10|tableau10|set3|paired|dark2|accent|pastel1|pastel2|set1|set2',
+  )
   .option(
     '--ext-colors <map>',
     'extension color overrides, e.g. ".ts=#3178c6,.js=#f7df1e"',
@@ -80,7 +83,6 @@ program
       reporter.exit(2);
     }
 
-    // We need the tree regardless
     let tree;
     try {
       tree = await scanDirectory(options, reporter);
@@ -90,13 +92,31 @@ program
     }
     if (!tree) return;
 
-    // --- Demo circle SVG (if requested) ---
+    const snapshot: Snapshot = {
+      meta: {
+        tool: 'lsphere',
+        version: '0.0.0', // TODO: optionally read from package.json later
+        generatedAt: new Date().toISOString(),
+        root: resolvePath(options.targetPath),
+        options: {
+          depth: options.depth,
+          dirsOnly: options.dirsOnly,
+          noDirs: options.noDirs,
+          bgColor: options.bgColor,
+          palette: options.palette,
+          contrast: options.contrast,
+        },
+      },
+      tree,
+    };
+
     const outDir = options.outDir;
     mkdirSync(outDir, { recursive: true });
 
+    // --- Demo circle SVG (if requested) ---
     if (options.outputs.svg) {
       const svgPath = join(outDir, 'circle.svg');
-      const svg = renderDemoCircle(options);
+      const svg = renderSvgFromSnapshot(snapshot, options);
       writeFileSync(svgPath, svg, 'utf8');
       reporter.success(`wrote SVG → ${kleur.bold(svgPath)}`);
     }
@@ -105,23 +125,7 @@ program
     let jsonPath: string | null = null;
     if (options.outputs.json) {
       jsonPath = join(outDir, 'circle.json');
-      const snapshot: Snapshot = {
-        meta: {
-          tool: 'lsphere',
-          version: '0.0.0', // TODO: optionally read from package.json later
-          generatedAt: new Date().toISOString(),
-          root: resolvePath(options.targetPath),
-          options: {
-            depth: options.depth,
-            dirsOnly: options.dirsOnly,
-            noFolders: options.noFolders,
-            bgColor: options.bgColor,
-            palette: options.palette,
-            contrast: options.contrast,
-          },
-        },
-        tree,
-      };
+
       writeFileSync(jsonPath, JSON.stringify(snapshot, null, 2), 'utf8');
       reporter.success(`wrote JSON → ${kleur.bold(jsonPath)}`);
     }
@@ -143,29 +147,6 @@ program
 program.parseAsync(process.argv);
 
 // ---------- helpers ----------
-
-function renderDemoCircle(options: Options): string {
-  const width = 600;
-  const height = 600;
-  const rScale = scaleLinear()
-    .domain([0, 1])
-    .range([0, Math.min(width, height) / 2]);
-  const r = rScale(0.7);
-  const cx = width / 2;
-  const cy = height / 2;
-  const bg = options.bgColor || '#ffffff';
-  const fill = '#69b3a2';
-
-  return [
-    `<?xml version="1.0" encoding="UTF-8"?>`,
-    `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}">`,
-    `  <rect width="${width}" height="${height}" fill="${bg}" />`,
-    `  <circle cx="${cx}" cy="${cy}" r="${r}" fill="${fill}" />`,
-    `</svg>`,
-    ``,
-  ].join('\n');
-}
-
 function printSummary(o: Options, reporter: ReturnType<typeof createReporter>) {
   const title = kleur.bold().white('lsphere — execution summary');
   const path = kleur.bold(resolvePath(o.targetPath));
@@ -191,7 +172,7 @@ function printSummary(o: Options, reporter: ReturnType<typeof createReporter>) {
     `${kleur.white('mode')}       ${o.dirsOnly ? 'dirs-only' : 'normal'}`,
   );
   reporter.info(
-    `${kleur.white('labels')}     ${o.noFolders ? 'hidden' : 'shown'}`,
+    `${kleur.white('labels')}     ${o.noDirs ? 'hidden' : 'shown'}`,
   );
   reporter.info(
     `${kleur.white('bg/palette')} ${o.bgColor} / ${o.palette} (${o.contrast})`,

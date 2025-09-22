@@ -58,7 +58,7 @@ export function createReporter(opts: ReporterOptions): Reporter {
   };
 
   const warn = (msg: string) => {
-    process.stderr.write(`${scopePfx}${K.yellow('⚠︎')} ${msg}\n`);
+    process.stderr.write(`${scopePfx}${K.yellow('[warn]')} ${msg}\n`);
   };
 
   const error = (msg: string) => {

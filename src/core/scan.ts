@@ -44,7 +44,7 @@ function buildIgnoreMatcher(
         for (const pat of filePatterns) reporter.debug(`  ignore: ${pat}`);
       }
     } else {
-      if (options.ignoreFile)
+      if (options.ignoreFile.length === 0)
         reporter.error(`ignore file not found: ${filePath}`);
       else reporter.warn(`ignore file not found: ${filePath}`);
     }

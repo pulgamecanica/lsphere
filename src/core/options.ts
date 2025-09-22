@@ -2,6 +2,17 @@
 // normalized, immutable Options object. No scanning, no rendering here.
 
 export type ContrastMode = 'auto' | 'on' | 'off';
+export type PaletteMode =
+  | 'category10'
+  | 'tableau10'
+  | 'set3'
+  | 'paired'
+  | 'dark2'
+  | 'accent'
+  | 'pastel1'
+  | 'pastel2'
+  | 'set1'
+  | 'set2';
 
 export interface OutputMode {
   svg: boolean;
@@ -37,10 +48,10 @@ export interface Options {
 
   depth: number; // -1 = unlimited
   dirsOnly: boolean;
-  noFolders: boolean;
+  noDirs: boolean;
 
   bgColor: string;
-  palette: string;
+  palette: PaletteMode;
   extColors: Record<string, string>;
 
   contrast: ContrastMode;
@@ -70,7 +81,7 @@ export interface RawCLI {
   // behavior
   depth?: string | number;
   dirsOnly?: boolean;
-  noFolders?: boolean;
+  noDirs?: boolean;
   bg?: string;
   palette?: string;
   extColors?: string;
@@ -98,9 +109,9 @@ export const DEFAULTS = Object.freeze({
   outputs: { svg: true, html: true, json: true, png: false } as OutputMode,
   depth: -1,
   dirsOnly: false,
-  noFolders: false,
+  noDirs: false,
   bgColor: '#ffffff',
-  palette: 'default',
+  palette: 'dark2' as PaletteMode,
   extColors: {} as Record<string, string>,
   contrast: 'auto' as ContrastMode,
   ignoreFile: '.lsignore',
@@ -144,10 +155,10 @@ export function resolveOptions(raw: RawCLI): Options {
     raw.noIgnoreFile === true ? null : (raw.ignoreFile ?? DEFAULTS.ignoreFile);
   const verbose = raw.quiet ? false : (raw.verbose ?? DEFAULTS.verbose);
   const contrast = normalizeContrast(raw.contrast);
-  const palette = raw.palette ?? DEFAULTS.palette;
+  const palette = normalizePalette(raw.palette);
   const bgColor = raw.bg ?? DEFAULTS.bgColor;
   const dirsOnly = !!raw.dirsOnly;
-  const noFolders = !!raw.noFolders;
+  const noDirs = !!raw.noDirs;
   const outDir = raw.out ?? DEFAULTS.outDir;
 
   const htmlTemplate = resolveHtmlTemplate({
@@ -164,7 +175,7 @@ export function resolveOptions(raw: RawCLI): Options {
     outputs,
     depth: depthNum,
     dirsOnly,
-    noFolders,
+    noDirs,
     bgColor,
     palette,
     extColors,
@@ -199,6 +210,24 @@ function parseExtColors(mapStr?: string): Record<string, string> {
 function normalizeContrast(v?: string): ContrastMode {
   const s = (v ?? DEFAULTS.contrast).toString().toLowerCase();
   return s === 'on' || s === 'off' ? (s as ContrastMode) : 'auto';
+}
+
+function normalizePalette(v?: string): PaletteMode {
+  const s = (v ?? DEFAULTS.palette).toString().toLowerCase();
+  return [
+    'category10',
+    'tableau10',
+    'set3',
+    'paired',
+    'dark2',
+    'accent',
+    'pastel1',
+    'pastel2',
+    'set1',
+    'set2',
+  ].includes(s)
+    ? (s as PaletteMode)
+    : 'dark2';
 }
 
 function toMs(v?: string | number): number | undefined {
